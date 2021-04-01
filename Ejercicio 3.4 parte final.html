@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>EJERCICIO 3.4</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #info {
+            position: absolute;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            color: aliceblue;
+        }
+
+        h2 {
+            color: beige;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="info">
+        <h2>EJERCICIO 3.4 EN CLASE </h2>
+
+        Universidad Militar Nueva granada<br />
+        Hector Murcia <br />
+
+
+    </div>
+    <script src="js/three.min.js"></script>
+    <script>
+        var scene, aspect, camera, renderer;
+        var startTime = Date.now();
+        var upArrow = false;
+        var downArrow = false;
+        init();
+        animate();
+
+        function init()
+
+        {
+
+            //El siguiente codigo fue con ayuda de la siguiente página : https://github.com/avilagab/CG-2020-2, al igual que la pagina de three.js https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene, al igual que el color picker de google, y la pagina http://keycode.info/, la cual me ayudo para los key de teclado o los atajos de teclado, para saber su codigo dependiendo de la letra, el github es de un repositorio del señor Gabriel Avila, el cual tiene un gran material de apoyo, de igual manera que la construccion de la matriz de traslación, me apoye y verifique que estuviera bien gracias a los apuntes del semestre pasado de introducción a la computación.
+
+            //ESCENA
+
+            scene = new THREE.Scene();
+
+            //ASPECTO
+
+            aspect = window.innerWidth / window.innerHeight;
+
+            //CAMARA
+
+
+            camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 1000);
+
+            //RENDER
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            //ELEMENTOS DE LA ESCENA
+
+            var size = 14;
+            var arrowSize = 4;
+            var divisions = size;
+            var origin = new THREE.Vector3(0, 0, 0);
+            var x = new THREE.Vector3(1, 0, 0);
+            var y = new THREE.Vector3(0, 1, 0);
+            var z = new THREE.Vector3(0, 0, 1);
+
+            //COLOR DE LAS GRILLAS
+
+            var color1 = new THREE.Color("rgb(255, 255, 255)"); //grillas color blanco
+            var color2 = new THREE.Color("rgb(255, 255, 255)"); //grillas color blanc
+
+            //COLOR DE LOS EJES
+
+            var colorB = new THREE.Color("rgb(255, 56, 56)"); //color rojo eje x
+            var colorV = new THREE.Color("rgb(56, 255, 112)"); //color verde eje y
+            var colorO = new THREE.Color("rgb(56, 202, 255)"); //color azul eje z
+
+            //COLOR DE LAS CARAS
+
+            var colorRd = new THREE.Color("rgb(255, 212, 212)"); //cara lateral rojo
+            var colorGd = new THREE.Color("rgb(212, 255, 226)"); //cara superior verde
+            var colorBd = new THREE.Color("rgb(212, 238, 255)"); //cara frontal azul
+
+            //CREAR GRILLAS PARA EL ESCENARIO
+
+
+            var axesHelper = new THREE.AxesHelper(size);
+            var gridHelperXY = new THREE.GridHelper(size, divisions, color1, color1); //subimos el color de las grillas
+            var gridHelperXZ = new THREE.GridHelper(size, divisions, color2, color2); //subimos el color de las grillas
+            var gridHelperYZ = new THREE.GridHelper(size, divisions, color2, color2); //subimos el color de las grillas
+
+            //ROTAR PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+
+
+            gridHelperXY.rotateOnWorldAxis(x, THREE.Math.degToRad(90));
+            gridHelperXZ.rotateOnWorldAxis(y, THREE.Math.degToRad(90));
+            gridHelperYZ.rotateOnWorldAxis(z, THREE.Math.degToRad(90));
+
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES (X,Y,Z) DE COORDENADAS 3D
+
+            //En este caso usamos los colores que definimos en la parte de elementos escena para identificar los ejes que se muestran en la grilla
+
+            var arrowX = new THREE.AxesHelper(7); //construimos la flecha del eje x color aguamarina
+            var arrowY = new THREE.AxesHelper(7); //construimos la flecha del eje y color morado
+            var arrowZ = new THREE.AxesHelper(7); //construimos la flecha del eje z color amarillo
+
+
+            //CREAR LA GEOMETRÍA
+
+            //En este caso vamos a crear la geomteria de la esfera
+
+            var geometry = new THREE.SphereGeometry( 1, 32, 32 );
+
+            //CREAR EL MATERIAL
+
+
+            var material = new THREE.MeshNormalMaterial({
+                color: color1,
+                vertexColors: THREE.FaceColors
+                
+            });
+
+            //CREAR LOS OBJETOS
+
+
+            var esfera = new THREE.Mesh(geometry, material);
+
+            //AGREGAR A LA ESCENA
+            //En este apartado agregamos la escena
+
+            scene.add(gridHelperXZ);
+            scene.add(arrowX);
+            scene.add(arrowY);
+            scene.add(arrowZ);
+            scene.add(esfera); //escena para la esfera
+
+            //MOVER LA CÁMARA
+
+            //En este apartado ubicamos la cámara en las posiciones que querramos, en este intente ubicarlo de tal manera que se pareciera al del libro
+
+            camera.position.x = -7; //-7 -3 -15
+            camera.position.y = 8; //8 8 10
+            camera.position.z = 17; //17 -7
+            camera.lookAt(origin);
+            
+            //Matrices
+            
+            var a = Math.cos(Math.PI/2),
+                l = Math.sin(Math.PI/2);
+                a1 = Math.cos(Math.PI/4),
+                l1 = Math.sin(Math.PI/4);
+                
+            
+            var matrizS = new THREE.Matrix4();
+            var matrizRX = new THREE.Matrix4();
+            var matrizT = new THREE.Matrix4();
+            var matrizRY = new THREE.Matrix4();
+            var matrizRZ = new THREE.Matrix4();
+            var matrizT1 = new THREE.Matrix4();
+            var matrizT2 = new THREE.Matrix4();
+            var matrizT3 = new THREE.Matrix4();
+            
+            
+            //Matriz de escala 
+            matrizS.set(0.5, 0, 0, 0,
+                0, 0.5, 0, 0,
+                0, 0, 3, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de rotación para el eje Y
+            matrizRX.set(a, 0, l, 0,
+                0, 1, 0, 0,
+                -l, 0, a, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de traslación para el eje X
+            matrizT.set(1, 0, 0, 3,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de rotación para el eje Y 
+            matrizRY.set(a1, 0, l1, 0,
+                0, 1, 0, 0,
+                l1, 0, a1, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de rotación para el eje Z 
+            matrizRZ.set(a1, -l1, 0, 0,
+                l1, a1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de traslación para el eje Y
+            matrizT1.set(1, 0, 0, 0,
+                0, 1, 0, -0.5,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+            
+            //Matriz de traslación para el eje Z
+            matrizT2.set(1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, -0.5,
+                0, 0, 0, 1);
+            
+            //Matriz de traslación para el eje X
+            matrizT3.set(1, 0, 0, 0.2,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+
+            esfera.applyMatrix(matrizS);
+            esfera.applyMatrix(matrizRX);
+            esfera.applyMatrix(matrizT);
+            esfera.applyMatrix(matrizRY);
+            esfera.applyMatrix(matrizRZ);
+            esfera.applyMatrix(matrizT1);
+            esfera.applyMatrix(matrizT2);
+            esfera.applyMatrix(matrizT3);
+            esfera.elementNeedUpdate = true;
+            
+
+        }
+
+        function animate()
+
+        {
+
+            render();
+            requestAnimationFrame(animate);
+        }
+
+        function render()
+
+        {
+
+            var dtime = Date.now() - startTime;
+
+            camera.lookAt(0, 0, 0);
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>
